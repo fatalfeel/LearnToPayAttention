@@ -14,4 +14,4 @@ I implemented two version of the model, the only difference is whether to insert
 - python3 ./train.py --cuda True --attn_before False
 
 ## Results  
-- in checkpoints/results can see the results
+- checkpoints/results can see them
