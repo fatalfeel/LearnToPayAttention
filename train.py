@@ -4,7 +4,6 @@ import argparse
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 import torchvision
-import torchvision.transforms as transforms
 from model import AttnVGG
 from utilities import *
 
@@ -38,11 +37,6 @@ def _worker_init_fn_(worker_id):
     np_seed = torch_seed // 2**32-1
     random.seed(torch_seed)
     np.random.seed(np_seed)
-
-def saveimg(img, image_path):
-    nimg = (img - img.min()) / (img.max() - img.min())
-    nimg = transforms.ToPILImage()(nimg)
-    nimg.save(image_path)
 
 if __name__ == "__main__":
     if not os.path.exists(opts.save_test_path):
@@ -175,10 +169,9 @@ if __name__ == "__main__":
             if opts.log_images:
                 print('\nlog images ...\n')
                 I_train = utils.make_grid(images_disp[0], nrow=opts.images_row, normalize=True, scale_each=True)
-                saveimg(I_train, opts.save_test_path + 'train%d.jpg' % epoch)
-                if epoch == 0:
-                    I_test = utils.make_grid(images_disp[1], nrow=opts.images_row, normalize=True, scale_each=True)
-                    saveimg(I_test, opts.save_test_path + 'test%d.jpg' % epoch)
+                saveimg(I_train, opts.save_test_path + 'train_epoch%d.jpg' % epoch)
+                I_test = utils.make_grid(images_disp[1], nrow=opts.images_row, normalize=True, scale_each=True)
+                saveimg(I_test, opts.save_test_path + 'test_epoch%d.jpg' % epoch)
 
             if opts.log_images and opts.isAttention:
                 print('\nlog attention maps ...\n')
@@ -196,26 +189,26 @@ if __name__ == "__main__":
                 __, c1, c2, c3 = modelPA(images_disp[0])
                 if c1 is not None:
                     attn1 = vis_fun(I_train, c1, up_factor=min_up_factor, nrow=opts.images_row)
-                    saveimg(attn1, opts.save_test_path + 'train_attn1%d.jpg' % epoch)
+                    saveimg(attn1, opts.save_test_path + 'train_attn1_epoch%d.jpg' % epoch)
 
                 if c2 is not None:
                     attn2 = vis_fun(I_train, c2, up_factor=min_up_factor * 2, nrow=opts.images_row)
-                    saveimg(attn2, opts.save_test_path + 'train_attn2%d.jpg' % epoch)
+                    saveimg(attn2, opts.save_test_path + 'train_attn2_epoch%d.jpg' % epoch)
 
                 if c3 is not None:
                     attn3 = vis_fun(I_train, c3, up_factor=min_up_factor * 4, nrow=opts.images_row)
-                    saveimg(attn3, opts.save_test_path + 'train_attn3%d.jpg' % epoch)
+                    saveimg(attn3, opts.save_test_path + 'train_attn3_epoch%d.jpg' % epoch)
 
                 # test data
                 __, c1, c2, c3 = modelPA(images_disp[1])
                 if c1 is not None:
                     attn1 = vis_fun(I_test, c1, up_factor=min_up_factor, nrow=opts.images_row)
-                    saveimg(attn1, opts.save_test_path + 'test_attn1%d.jpg' % epoch)
+                    saveimg(attn1, opts.save_test_path + 'test_attn1_epoch%d.jpg' % epoch)
 
                 if c2 is not None:
                     attn2 = vis_fun(I_test, c2, up_factor=min_up_factor * 2, nrow=opts.images_row)
-                    saveimg(attn2, opts.save_test_path + 'test_attn2%d.jpg' % epoch)
+                    saveimg(attn2, opts.save_test_path + 'test_attn2_epoch%d.jpg' % epoch)
 
                 if c3 is not None:
                     attn3 = vis_fun(I_test, c3, up_factor=min_up_factor * 4, nrow=opts.images_row)
-                    saveimg(attn3, opts.save_test_path + 'test_attn3%d.jpg' % epoch)
+                    saveimg(attn3, opts.save_test_path + 'test_attn3_epoch%d.jpg' % epoch)

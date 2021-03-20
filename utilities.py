@@ -1,9 +1,14 @@
 import numpy as np
 import cv2
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.utils as utils
+import torchvision.transforms as transforms
+
+def saveimg(img, image_path):
+    nimg = (img - img.min()) / (img.max() - img.min())
+    nimg = transforms.ToPILImage()(nimg)
+    nimg.save(image_path)
 
 def visualize_attn_softmax(I, c, up_factor, nrow):
     # image
