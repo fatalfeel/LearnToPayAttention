@@ -23,9 +23,9 @@ parser.add_argument("--isAttention", type=str2bool, default=True, help='turn on 
 #parser.add_argument("--attn_mode", type=str, default="after", help='insert attention modules before OR after maxpooling layers')
 parser.add_argument('--attn_before', type=str2bool, default=True, help='insert attention modules before OR after maxpooling layers')
 parser.add_argument("--normalize_attn", type=str2bool, default=True, help='if True, attention map is normalized by softmax; otherwise use sigmoid')
-parser.add_argument("--log_images", type=str2bool, default=True, help='log images and (is available) attention maps')
 parser.add_argument('--save_model_path', type=str, default='checkpoints/', help='save model')
-parser.add_argument("--save_test_path", type=str, default="checkpoints/results/", help='path of log files')
+parser.add_argument("--save_test_path", type=str, default="checkpoints/results/", help='test files path ')
+parser.add_argument("--save_final_path", type=str, default="pretrained/", help='lastest model save path')
 parser.add_argument("--images_row", type=int, default=4, help='how many images in one row')
 parser.add_argument('--cuda', default=False, type=str2bool)
 
@@ -42,6 +42,9 @@ def _worker_init_fn_(worker_id):
 if __name__ == "__main__":
     if not os.path.exists(opts.save_test_path):
         os.makedirs(opts.save_test_path)
+
+    if not os.path.exists(opts.save_final_path):
+        os.makedirs(opts.save_final_path)
 
     print('\nloading the dataset ...\n')
     #im_size = 32
@@ -167,17 +170,15 @@ if __name__ == "__main__":
             print("\n[epoch %d] accuracy on test data: %.2f%%\n" % (epoch, 100*correct/total))
 
             # log images
-            if opts.log_images:
-                print('\nlog images ...\n')
-                I_train = utils.make_grid(images_disp[0], nrow=opts.images_row, normalize=True, scale_each=True)
-                saveimg(I_train, opts.save_test_path + 'train_epoch%d.jpg' % epoch)
-                I_test = utils.make_grid(images_disp[1], nrow=opts.images_row, normalize=True, scale_each=True)
-                saveimg(I_test, opts.save_test_path + 'test_epoch%d.jpg' % epoch)
+            print('\nsave attention maps ...\n')
+            I_train = utils.make_grid(images_disp[0], nrow=opts.images_row, normalize=True, scale_each=True)
+            saveimg(I_train, opts.save_test_path + 'train_epoch%d.jpg' % epoch)
 
-            if opts.log_images and opts.isAttention:
-                print('\nlog attention maps ...\n')
-                # base factor
-                if opts.attn_before:
+            I_test = utils.make_grid(images_disp[1], nrow=opts.images_row, normalize=True, scale_each=True)
+            saveimg(I_test, opts.save_test_path + 'test_epoch%d.jpg' % epoch)
+
+            if opts.isAttention:
+                if opts.attn_before: # base factor
                     min_up_factor = 1
                 else:
                     min_up_factor = 2
@@ -213,3 +214,5 @@ if __name__ == "__main__":
                 if c3 is not None:
                     attn3 = vis_fun(I_test, c3, up_factor=min_up_factor * 4, nrow=opts.images_row)
                     saveimg(attn3, opts.save_test_path + 'test_attn3_epoch%d.jpg' % epoch)
+
+    torch.save(modelPA.state_dict(), os.path.join(opts.save_final_path, 'modelPA_final.pth' % epoch))
