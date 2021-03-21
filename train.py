@@ -215,4 +215,5 @@ if __name__ == "__main__":
                     attn3 = vis_fun(I_test, c3, up_factor=min_up_factor * 4, nrow=opts.images_row)
                     saveimg(attn3, opts.save_test_path + 'test_attn3_epoch%d.jpg' % epoch)
 
-    torch.save(modelPA.state_dict(), os.path.join(opts.save_final_path, 'modelPA_final.pth' % epoch))
+    torch.save(modelPA.state_dict(), os.path.join(opts.save_final_path, 'modelPA_final.pth'))
+    
